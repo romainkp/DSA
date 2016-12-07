@@ -1,0 +1,45 @@
+dnl package name, version
+AC_INIT([DSA], 1.0.0) 
+          
+dnl Select an optional include path, from a configure option
+dnl or from an environment variable.
+AC_ARG_WITH([nag-include],
+AC_HELP_STRING([--with-nag-include=INCLUDE_PATH],
+	       [the location of NAG header files]),
+               [nag_include_path=$withval])
+
+if test [ -n "$nag_include_path" ] ; then
+   AC_SUBST([CPPFLAGS],["-I${nag_include_path} ${CPPFLAGS}"])
+else
+  if test [ -n "${NAG_INCLUDE}" ] ; then
+     AC_SUBST([CPPFLAGS],["-I${NAG_INCLUDE} ${CPPFLAGS}"])
+  fi
+fi
+
+dnl ditto for a library path
+AC_ARG_WITH([nag-lib],
+            AC_HELP_STRING([--with-nag-lib=LIB_PATH],
+                           [the location of nag libraries]),
+            [nag_lib_path=$withval])
+if test [ -n "$nag_lib_path" ] ; then
+   AC_SUBST([LIBS],[" -L${nag_lib_path} ${LIBS}"])
+else
+  if test [ -n "${NAG_LIBS}" ] ; then
+     AC_SUBST([LIBS],["-L${NAG_LIBS} ${LIBS}"])
+  fi
+fi
+
+dnl Another user-specifiable option
+AC_ARG_ENABLE(nag, [AC_HELP_STRING(--enable-nag=n, [specify whether to use the NAG libraries (y/n)])])
+
+if test "$enable_nag" = "y"; then
+   AC_SUBST([CPPFLAGS], ["-D__USE_NAG__ ${CPPFLAGS}"])  
+   AC_SUBST([LIBS], ["-lnagc-mkl -lpthread -lm ${LIBS}"])
+fi
+
+dnl substitute CPPFLAGS and LIBS
+AC_SUBST(CPPFLAGS)
+AC_SUBST(LIBS)
+
+dnl and do subsitution in the src/Makevars.in
+AC_OUTPUT(src/Makevars)

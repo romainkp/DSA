@@ -1,0 +1,243 @@
+---------------------
+RELEASE 3.1.4
+--------------------- 
+
+Unbundled the DSA bundle into two packages that should be installed
+in the following order: modelUtils and DSA
+
+---------------------
+RELEASE 3.1.3
+--------------------- 
+
+Fixed a bug that did not allow to use weights when "usersplits" was
+specified.
+
+---------------------
+RELEASE 3.1.2
+---------------------
+
+Fix for a memory boundary error that could cause the DSA to crash with
+a segmentation fault when the base model is the intercept model for a
+binary outcome with rare events.
+
+---------------------
+RELEASE 3.1.1
+---------------------
+
+The error message obtained when the base model (forced terms) cannot
+be fitted on one of the training sets was made explicit.
+
+---------------------
+RELEASE 3.1.0
+---------------------
+
+* The DSA algorithm has been further improved to significantly reduce
+the computing time.
+
+* The search though the space of candidate estimators can now be
+customized with the arguments "Dmove" and "Smove". For more
+information on this new feature, please read the help file
+corresponding with the DSA routine. 
+
+---------------------
+RELEASE 3.0.2
+---------------------
+
+* The memory requirements for long DSA jobs have been lowered.
+
+* Further speed improvements have been implemented.
+
+* Fix for a bug when plotting a DSA object with the plot.compare=TRUE
+  option.
+
+---------------------
+RELEASE 3.0.1
+---------------------
+
+Fix for a bug about incorrect memory management (objects not freed
+when no longer needed).
+
+---------------------
+RELEASE 3.0.0
+---------------------
+
+* The DSA algorithm has been improved to significantly reduce the
+computing time.
+
+* Estimator selection for categorical outcomes is now available by
+specifying family=multinomial.
+
+* The dimension reduction step is no longer implemented by default but
+can be requested by specifying the rank.cutoffs argument.
+
+---------------------
+RELEASE 2.2.2
+---------------------
+
+We fixed a bug which could cause the DSA to stop prematurely with an
+error message with binomial models if one of the model selected on a
+training set could not be fit on the corresponding test set
+(non-convergence).
+
+---------------------
+RELEASE 2.2.1
+---------------------
+
+* We fixed a bug in the algorithm used to fit binomial models (and
+compute the residuals) which caused arithmetic underflows/overflows.
+
+* The user can now control two different tolerance values used to
+compare floating points and determine convergence or rank deficiency
+when fitting models.
+
+---------------------
+RELEASE 2.2.0
+---------------------
+
+* A dimension reduction step is now implemented as part of the DSA
+routine based on a ranking of all candidate variables and a
+user-specified set of rank cut-offs. For more information on this new
+feature, please read the help file corresponding with the DSA routine.
+
+* The summary routine for a DSA object and the DSA object itself now
+also provide additional information about the dimension reduction
+step. See the help files for more details.
+
+* Cross-validated risks for the model selected with the DSA routine or
+computed with the crossValidate routine can now be computed for the
+intercept model.
+
+---------------------
+RELEASE 2.1.4
+---------------------
+
+* We fixed a bug in the DSA output which could cause the reported
+cross-validated risk for the model selected
+(average.CVrisk.model.selected) to be incorrect when the model
+selected did not conform to the constraints maxsumofpow=maxorderint=1.
+
+* We fixed the same bug which also concerned the routine crossValidate
+and fixed a bug which caused crossValidate to ignore the argument
+nsplits.
+
+---------------------
+RELEASE 2.1.3
+---------------------
+
+We fixed a bug which lead a DSA call to stop prematurely with an error
+message when the number of candidate variables in data is one only.
+
+---------------------
+RELEASE 2.1.2
+---------------------
+
+We fixed a bug which could lead a DSA call to be prematurely
+interrupted with an "Illegal forced terms; Design matrix singular."
+error message when nsplits>1.
+
+---------------------
+RELEASE 2.1.1
+---------------------
+
+* The arguments 'nfolds' and 'vsplits' have been renamed 'vfold' and
+'usersplits' respectively.
+
+* The DSA routine has a new option 'nsplits' which allow the
+cross-validation procedure to be based on data splits corresponding
+with multiple v-fold splits of the data (see 'help(DSA)').
+
+* Model comparison based on empirical or cross-validated risks is now
+based on the computer's machine epsilon on which the DSA is
+run. Before this release, models with risk differences below 1e-8 were
+considered equivalent. To check the value of your machine epsilon,
+type '.Machine$double.eps' in R.
+	
+---------------------
+RELEASE 2.1.0
+---------------------
+
+* The DSA routine now returns not only the final model selected with
+cross-validation but also the list of models for each size considered
+corresponding with the 'best' order of interaction selected with
+cross-validation.
+
+* A new routine called 'DSAgenerate' has been added to the package as
+a way to run the DSA without cross-validation and thus obtain a list
+of 'best' candidate models for a user-specified order of interaction
+(not necessarily selected with cross-validation). This routine should
+be especially useful after the user has carefully considered the DSA
+graphs obtained with the routine 'plot' (see 'help(plot.DSA)').
+
+* One-column response variables which are factors are now supported 
+by the DSA.
+
+* We fixed a bug where the user could force terms which are not
+linearly independent (the design matrix X is such that XX' is not of
+full rank).
+
+* We fixed a bug where the user could pass in to the DSA routine an
+incorrect object for 'weights'.
+
+---------------------
+RELEASE 2.0.2
+---------------------
+
+* We fixed a bug which caused R to crash when 'silent=FALSE' and the
+final model selected by the DSA is the intercept model.
+
+* We modified the message level used when 'silent=FALSE'. It used to
+be 2 and is now 0. Note that the message level is -1 when 'silent' is
+referenced and set to 'TRUE'.
+
+* We provided further details on how to use the argument 'silent' with
+the DSA routine (see 'help(DSA)').
+
+* We fixed a bug which prevented 'N NON-NA' to be printed after a call
+to 'summary'.
+
+---------------------
+RELEASE 2.0.1
+---------------------
+
+We fixed a bug which caused R to crash when the user called the DSA
+with the explicit argument "weights=NULL".
+
+---------------------
+RELEASE 2.0.0
+---------------------
+
+* The signature for the DSA routine is now in line with common R
+routines like 'glm' and 'gee' which should make calls to the DSA
+easier for new users.
+
+* The learning data set is now provided in one chunk with the data
+frame 'data', i.e. there are no more 'Ylearn', 'Xlearn' arguments.
+
+* Factors (categorical variables) can now be handled by the DSA
+routine, i.e. dummy variables are created automatically. An important
+caveat is that factors are only partially supported in terms forced in
+the final model. We hope to fully support factors in future releases
+of the DSA package.
+
+* The object returned by the DSA is now a class: the method 'print',
+'summary', 'predict', 'plot' can be applied to it.
+
+* The average cross-validated risk for the final model selected by the
+DSA is now returned along with the average cross-validated risk
+associated with its size and interaction order.
+
+* The welcome message following 'library(DSA)' or 'require(DSA)' is
+now more informative to better track and solve bugs. Please, report
+any bugs with the information contained in the welcome message.
+
+* The messaging level can be changed by the R user with
+'setDSAMessageLevel'. This capability should be most useful to
+developers only. Regular users may only want to change the messaging
+level from the default value -1 to 0 to get more information about the
+computation progress for long jobs launched in BATCH mode. We do not
+recommend higher messaging levels values for non-developers.
+
+* An email list has been created to keep interested users updated
+about the development of this package. Please email
+'bullard@stat.berkeley.edu' or 'romain@stat.berkeley.edu' if you wish
+to be added to or removed from the list.

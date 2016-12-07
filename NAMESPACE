@@ -1,0 +1,30 @@
+##
+## NAMESPACE file for DSA library.
+##
+useDynLib(DSA)
+
+##
+## export anything w/out a .DSA in front. 
+##
+# exportPattern("^[^\\.DSA]")
+
+
+export(DSA)
+export(setDSAMessageLevel)
+export(getDSAMessageLevel)
+export(getDSASubversionInfo)
+export(crossValidate)
+export(DSAgenerate)
+export(candidateReduction)
+
+importFrom(stats, residuals, coefficients, predict)
+importFrom(graphics, plot)
+
+S3method(print, DSA)
+S3method(summary, DSA)
+S3method(plot, DSA)
+S3method(predict, DSA)
+S3method(coefficients, DSA)
+S3method(residuals, DSA)
+S3method(print, summary.DSA)
+
