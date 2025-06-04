@@ -2,12 +2,12 @@ Package: DSA
 Type: Package
 Depends: utils, modelUtils
 Title: Deletion/Substitution/Addition algorithm
-Version: 3.1.4
+Version: 3.1.5
 Date: 2010-06-30
-Author: Romain Neugebauer and James Bullard
+Author: Romain Neugebauer and Keanu Izadian and James Bullard
 Maintainer: <romain.s.neugebauer@kp.org>
 Description: loss-based estimation with the D/S/A algorithm
 License: LGPL
-URL: http://www.stat.berkeley.edu/~laan/Software/
+URL: github.com/romainkp/DSA
 LazyLoad: yes
 Packaged: 2010-06-30 23:17:09 UTC; romain

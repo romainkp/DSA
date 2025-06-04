@@ -41,7 +41,7 @@ void DSA_PACK_printmatrixl(int *x, int nrow, int ncol)
   for (i=0;i<nrow;i++)
     {
       Rprintf("\n");
-      for(j=0;j<ncol;j++)Rprintf("%ld ",x[j*nrow+i]); 
+      for(j=0;j<ncol;j++)Rprintf("%d ",x[j*nrow+i]); 
     }
 }
 

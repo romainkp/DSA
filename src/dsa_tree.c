@@ -32,7 +32,7 @@ p_node_t* get_node (unsigned long* probe, int len, p_node_t* tree) {
     if (__DEBUG_TREE__) {
 	Rprintf("in get_node (len = %d): ", len);
 	for (i = 0; i < len; i++) 
-	    Rprintf("%u ", probe[i]);
+	    Rprintf("%lu ", probe[i]);
 	Rprintf("\n");
     }
     
@@ -74,7 +74,7 @@ void add_node (unsigned long* probe, int len, double rss, struct p_node* tree) {
     if (__DEBUG_TREE__) {
 	Rprintf("in add_node (len = %d): ", len);
 	for (i = 0; i < len; i++) 
-	    Rprintf("%u ", probe[i]);
+	    Rprintf("%lu ", probe[i]);
 	Rprintf("\n");
     }
 

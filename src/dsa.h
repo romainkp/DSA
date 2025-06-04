@@ -14,8 +14,15 @@
 /** 
  * some global constants which the user sets at package load time. 
  */
-int DSA_PACK_userMlevel;
-double DSA_PACK_epsilonCompare; 
+extern int DSA_PACK_userMlevel;
+extern double DSA_PACK_epsilonCompare;
+
+#ifndef DOUBLE_EPS
+# define DOUBLE_EPS 2.2204460492503131e-16
+#endif
+
+/** snagged from R. **/
+static const double MY_ZERO = (DOUBLE_EPS*100);
 
 /** 
     we are going to make a couple of global variables here
@@ -25,8 +32,8 @@ double DSA_PACK_epsilonCompare;
 #define __USE_TREE__
 */
 
-unsigned long int* MODEL_TO_FIT;
-p_node_t* TREE; 
+extern unsigned long int* MODEL_TO_FIT;
+extern p_node_t* TREE; 
 
 void DSA_PACK_printmatrix(double *x, int nrow, int ncol);
 void DSA_PACK_printmatrixl(int *x, int nrow, int ncol);

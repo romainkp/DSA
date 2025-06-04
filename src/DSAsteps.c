@@ -13,6 +13,12 @@
 #include "dsa_model.h"
 #include "PRIMES.h"
 
+#define DOUBLE_EPS 2.2204460492503131e-16
+
+void (*model_fitter)(
+  int*, double*, double*, int*, int*, int*, double*, double*, double*, double*,
+  int*, double*, int*, int*, double*
+);
 
 static const double THRESH = 30.;
 static const double MTHRESH = -30.;
@@ -159,12 +165,12 @@ int DSA_PACK_Sstep(int *gCOUNT,int *gCONST,double *bestarss,int **bestmodels,int
   /* Start all the sub moves and swap moves */
   for(newtermindex=nforced;newtermindex<msize;newtermindex++)
     for(jthvar=0;jthvar<nvarX;jthvar++) {
-      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\nSUB/SWAP on term %li with var %li",newtermindex,jthvar);
+      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\nSUB/SWAP on term %i with var %i",newtermindex,jthvar);
       for(i=0;i<maxsize;i++)for(j=0;j<nvarX;j++)tempmodel[j*maxsize+i] = currentmodel[j*maxsize+i];
       for(j=0;j<nvarX;j++)newterm[j] = tempmodel[j*maxsize+newtermindex];
 
       /* TRY ADDING ONE TO P-VECTOR */
-      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\tTry to add 1 to var %li",jthvar);
+      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\tTry to add 1 to var %i",jthvar);
       newterm[jthvar] = newterm[jthvar] + 1;
 	  
       DSA_PACK_checknewterm(&orderint_in_newterm,&sumofpow_in_newterm,&is_newterm_unique,newterm,nvarX,
@@ -218,7 +224,7 @@ int DSA_PACK_Sstep(int *gCOUNT,int *gCONST,double *bestarss,int **bestmodels,int
 		}
 	    }
 	} /* end of else do swaps */
-      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\tTry to subs 1 to var %li",jthvar);
+      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)Rprintf("\n\tTry to subs 1 to var %i",jthvar);
       for(i=0;i<maxsize;i++)for(j=0;j<nvarX;j++)tempmodel[j*maxsize+i] = currentmodel[j*maxsize+i];
       for(j=0;j<nvarX;j++)newterm[j] = tempmodel[j*maxsize+newtermindex];
 
@@ -536,22 +542,20 @@ void DSA_PACK_eval_model(int maxsize,int msize,int *tempmodel,int newterm_index,
   if (always_doit == 1 || temp_node == NULL || temp_node->rss < 0) {
     /* Print model tried on stdout */
     if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh) {
-      Rprintf("\nModel tried %li:",*nglmcall+1);
+      Rprintf("\nModel tried %i:",*nglmcall+1);
       Rprintf("\n");
       for(i=0;i<msize;i++) {
-	Rprintf("%ld \t ",i);
+	Rprintf("%d \t ",i);
 	for(j=0;j<nvarX;j++)
-	  if(tempmodel[j*maxsize+i] > 0)Rprintf("%ld^%ld ",j,tempmodel[j*maxsize+i]);
+	  if(tempmodel[j*maxsize+i] > 0)Rprintf("%d^%d ",j,tempmodel[j*maxsize+i]);
 	Rprintf("\n");
       }
     } 
-	
     /* Form tempXdata,tempYdata and glmWT */
     DSA_PACK_get_tempXdata(samplesize,tempXdata,msize,maxsize,tempmodel,
 			   nvarX,Xdata,tempterm,lastXdesign);
 
-	
-    DL_FUNC model_fitter = R_GetCCallable("modelUtils", "fit_model");
+    model_fitter = (void(*)(int*, double*, double*, int*, int*, int*, double*, double*, double*, double*, int*, double*, int*, int*, double*)) R_GetCCallable("modelUtils", "fit_model");
 
     (*model_fitter)(&mtype, tempXdata, tempYdata, &samplesize, &IRANK, &M,
 		    glmWT, PARA, &DEV, RES, &fail, &tol, &maxiter,modelfit_work_i,modelfit_work_d);
@@ -593,7 +597,7 @@ void DSA_PACK_eval_model(int maxsize,int msize,int *tempmodel,int newterm_index,
     temprss = DEV/NnonNA;
 
     if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh) {
-      Rprintf("\nCoefficients for model with ARSS of %lf based on NnonNA=%li obs: ", temprss, NnonNA);
+      Rprintf("\nCoefficients for model with ARSS of %lf based on NnonNA=%i obs: ", temprss, NnonNA);
       if(DEV==R_PosInf)
 	Rprintf("not printed because the deviance is R_PosInf.");
       else if(binind>1)for(ii = 0; ii < binind; ii++)
@@ -712,15 +716,15 @@ int DSA_PACK_exportresult(double *oldrss,double newrss,int msize,int nvarX,int *
 		  bestmodels[IP-2][j*maxsize+i] = currentmodel[j*maxsize+i];
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
 		{
-		  Rprintf("\nModel accepted %li - bestarss: %lf\n",nglmcall,bestarss[IP-1]);
+		  Rprintf("\nModel accepted %i - bestarss: %lf\n",nglmcall,bestarss[IP-1]);
 		  
 		  
 		  for(i=0;i<msize;i++)
 		    {
-		      Rprintf("%ld \t ",i);
+		      Rprintf("%d \t ",i);
 		      for(j=0;j<nvarX;j++)
 			if(bestmodels[IP-2][j*maxsize+i] > 0)
-			  Rprintf("%ld^%ld ",j,bestmodels[IP-2][j*maxsize+i]);
+			  Rprintf("%d^%d ",j,bestmodels[IP-2][j*maxsize+i]);
 		      Rprintf("\n");
 		    }
 		}
@@ -738,12 +742,12 @@ int DSA_PACK_exportresult(double *oldrss,double newrss,int msize,int nvarX,int *
 	  for(i=0;i<maxsize;i++)for(j=0;j<nvarX;j++)bestmodels[IP-2][j*maxsize+i] = currentmodel[j*maxsize+i];
 	  if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
 	    {
-	      Rprintf("\nModel accepted %li - bestarss: %lf\n",nglmcall,bestarss[IP-1]);
+	      Rprintf("\nModel accepted %i - bestarss: %lf\n",nglmcall,bestarss[IP-1]);
 	      for(i=0;i<msize;i++)
 		{
-		  Rprintf("%ld \t ",i);
+		  Rprintf("%d \t ",i);
 		  for(j=0;j<nvarX;j++)if(bestmodels[IP-2][j*maxsize+i] > 0)
-		    Rprintf("%ld^%ld ",j,bestmodels[IP-2][j*maxsize+i]);
+		    Rprintf("%d^%d ",j,bestmodels[IP-2][j*maxsize+i]);
 		  Rprintf("\n");
 		}
 	    }

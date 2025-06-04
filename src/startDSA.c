@@ -20,6 +20,12 @@
 #include <R_ext/Utils.h>
 #include "dsa.h"
 
+int DSA_PACK_userMlevel = -1;
+double DSA_PACK_epsilonCompare = MY_ZERO;
+unsigned long int* MODEL_TO_FIT = NULL;
+p_node_t* TREE = NULL;
+int R_DSA_DEBUG_LEVEL = 10;
+
 void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 			double *RES,int *gCOUNT,int *gCONST,double *bestarss,
 			double *Ydata,double *Xdata,int **bestmodels,int *currentmodel,
@@ -163,10 +169,10 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
   if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\n");
   for(i=0;i<msize;i++)
     {
-      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("%ld \t ",i);
+      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("%d \t ",i);
       for(j=0;j<nvarX;j++)
 	if(currentmodel[j*maxsize+i] > 0)
-	  if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("%ld^%ld ",j,currentmodel[j*maxsize+i]);
+	  if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("%d^%d ",j,currentmodel[j*maxsize+i]);
       if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\n");
     }
   if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\n");
@@ -180,7 +186,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
       if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)Rprintf("\n");
       if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)Rprintf("Start! \n");
       if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)Rprintf("Running algorithm ..... \n");
-      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\nNumber of terms in model: %li",gCOUNT[0]);
+      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\nNumber of terms in model: %i",gCOUNT[0]);
       while(FLAG==1 && gCOUNT[0]<=maxsize && (gCOUNT[0]+1)<samplesize)
 	{
 	  deletion=0;
@@ -197,7 +203,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 					,modelfit_work_i,modelfit_work_d,lastXdesign);
 
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)
-		Rprintf("\nNumber of terms in model: %li, deletion=%li",gCOUNT[0],deletion);
+		Rprintf("\nNumber of terms in model: %i, deletion=%i",gCOUNT[0],deletion);
 	      R_CheckUserInterrupt();
 	    }
 	  if(bestarss[gCOUNT[0]] < DSA_PACK_epsilonCompare)
@@ -217,7 +223,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 					    glmWT,PARA,RES,ithterm,WTdata,trainFlag,currentarss,
 					    *nforced,binWTdata,modelfit_work_i,modelfit_work_d,lastXdesign);
 		  if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)
-		    Rprintf("\nNumber of terms in model: %li, subsmade=%li",gCOUNT[0],subsmade);
+		    Rprintf("\nNumber of terms in model: %i, subsmade=%i",gCOUNT[0],subsmade);
 		  R_CheckUserInterrupt();
 		}
 	      if(bestarss[gCOUNT[0]] < DSA_PACK_epsilonCompare)
@@ -237,7 +243,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 					      glmWT,PARA,RES,ithterm,WTdata,trainFlag,currentarss,binWTdata,
 					      modelfit_work_i,modelfit_work_d,lastXdesign);	 
 		      if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)
-			Rprintf("\nNumber of terms in model: %li, extend=%li",gCOUNT[0],extend);
+			Rprintf("\nNumber of terms in model: %i, extend=%i",gCOUNT[0],extend);
 		      R_CheckUserInterrupt();
 		    }
 		  else if(gCOUNT[0] == maxsize)
@@ -257,7 +263,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 	}    /* end of while loop */
     } /* end of if(gCOUNT[0]<maxsize) */
   if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
-    Rprintf("\nAfter DSA in startalgo: globalcount[1]=msize: %li\n\n",gCOUNT[0]);
+    Rprintf("\nAfter DSA in startalgo: globalcount[1]=msize: %i\n\n",gCOUNT[0]);
 
   if(trainFlag == 0)
     {
@@ -284,8 +290,8 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 	{
 	  Rprintf("OPTIMAL MODEL: \n");
 	  Rprintf("Final ARSS: %lf\n",oldarss);
-	  Rprintf("terms in model w intercept %ld \n",IP);
-	  Rprintf("terms in model wo intercept %ld \n",bestsize);
+	  Rprintf("terms in model w intercept %d \n",IP);
+	  Rprintf("terms in model wo intercept %d \n",bestsize);
 	  Rprintf("Estimates of coefficients: \n");
 	  if(binind>1)for(ii = 0; ii < binind; ii++)
 	    {
@@ -294,7 +300,7 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 	    }
 	  else DSA_PACK_printmatrix(PARA,IP,1);
 	  Rprintf("\n");
-	  Rprintf("bestmodels for size %ld \n",bestsize);
+	  Rprintf("bestmodels for size %d \n",bestsize);
 	  if(bestsize>0)
 	    {
 	      DSA_PACK_printmatrixl(bestmodels[bestsize-1],maxsize,nvarX);
@@ -302,11 +308,11 @@ void DSA_PACK_startAlgo(double *glmWT,double *PARA,
 	      Rprintf("Terms in Final Model: \n");
 	      for(ii=0;ii<bestsize;ii++)
 		{
-		  Rprintf("%ld \t ",ii);
+		  Rprintf("%d \t ",ii);
 		  for(i=0;i<nvarX;i++)
 		    {
 		      j = bestmodels[bestsize-1][i*maxsize+ii];
-		      if(j > 0)Rprintf("%ld^%ld ",i,j);
+		      if(j > 0)Rprintf("%d^%d ",i,j);
 		    }
 		  Rprintf("\n");
 		}

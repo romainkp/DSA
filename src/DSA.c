@@ -49,6 +49,11 @@ gCONST:
 #include "dsa.h"
 #include "dsa_tree.h"
 
+
+/* define imports from modelUtils */
+int* (*model_allocate_i)(int,int,int,int);
+double* (*model_allocate_d)(int,int,int,int);
+
 void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,double *PARA,
 		     int *vsplits,double *WTtrainvallearn,int *nforced,int *forcedterms,
 		     int *maxntrain, int *maxnval,int *bestmodelsspace,double *binWTtrainvallearn)
@@ -82,7 +87,6 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
     M=1;
 
   if(usetree==1)MODEL_TO_FIT = (unsigned long int* )R_alloc(maxsize, sizeof(unsigned long int));
-
   /* MEMORY ALLOCATION */ /* NEED TO MAKE SURE TO INITIALIZE IF NECESSARY */
   trainindex=(int *)R_alloc(*maxntrain,sizeof(int));
   valindex=(int *)R_alloc(*maxnval,sizeof(int));
@@ -131,8 +135,8 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
   binWTval=(double *)R_alloc(*maxnval,sizeof(double));
   gCOUNT=(int *)R_alloc(6,sizeof(int));
 
-  DL_FUNC model_allocate_d = R_GetCCallable("modelUtils", "model_allocate_double");
-  DL_FUNC model_allocate_i = R_GetCCallable("modelUtils", "model_allocate_int");
+  model_allocate_d = (double*(*)(int,int,int,int)) R_GetCCallable("modelUtils", "model_allocate_double");
+  model_allocate_i = (int*(*)(int,int,int,int)) R_GetCCallable("modelUtils", "model_allocate_int");
   modelfit_work_d=(*model_allocate_d)(mtype,nlearn,maxsize+1,M);
   modelfit_work_i=(*model_allocate_i)(mtype,nlearn,maxsize+1,M);
 
@@ -145,7 +149,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	  if(usetree==1)
 	    {
 	      TREE = make_new_node(1, -1); /** the root node. **/ 
-	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is initialized for training set %li: name = %u, rss = %g \n", fold+1, TREE->name, TREE->rss);    
+	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is initialized for training set %i: name = %lu, rss = %g \n", fold+1, TREE->name, TREE->rss);    
 	    }
 
 	  /* COMPUTE FOR THE CORRESPONDING SPLIT THE SIZE OF THE TRAINING AND VALIDATION SET */
@@ -196,7 +200,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	  for(orderint = 1; orderint <= maxorderint; orderint++)
 	    {
 	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)
-		Rprintf("\n****** Model selection among models of maximum interaction order = %li based on split V%li ******",orderint,fold+1);
+		Rprintf("\n****** Model selection among models of maximum interaction order = %i based on split V%i ******",orderint,fold+1);
 
 	      gCOUNT[0] = 0;              /* msize: number of terms in the current model - intercept excluded */
 	      gCOUNT[1] = orderint;       /* orderint: current maximum order of interaction allowed */
@@ -208,11 +212,11 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
 		{
 		  Rprintf("\n");
-		  Rprintf("\tMaximal number of terms in each model considered - intercept excluded = %ld \n",
+		  Rprintf("\tMaximal number of terms in each model considered - intercept excluded = %d \n",
 			  maxsize);
-		  Rprintf("\tMaximal sum of powers in each term of each model considered = %ld \n",maxsumofpow);
-		  Rprintf("\tSize of the validation set (nval): %ld \n",nval);
-		  Rprintf("\tSize of the training set (ntrain): %ld \n",ntrain);
+		  Rprintf("\tMaximal sum of powers in each term of each model considered = %d \n",maxsumofpow);
+		  Rprintf("\tSize of the validation set (nval): %d \n",nval);
+		  Rprintf("\tSize of the training set (ntrain): %d \n",ntrain);
 		  Rprintf("\n");
 		}
 
@@ -228,11 +232,11 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 				 lastXdesign);
 
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
-		Rprintf("The largest model considered is of size %li.\n",gCOUNT[0]);
+		Rprintf("The largest model considered is of size %i.\n",gCOUNT[0]);
 	  
 	      totalglmcalls = totalglmcalls + gCOUNT[2];
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
-		Rprintf("The number of times glm was called on this training set is %ld.\n",gCOUNT[2]);
+		Rprintf("The number of times glm was called on this training set is %d.\n",gCOUNT[2]);
 	    
 	      /* COMPUTE THE CROSS-VALIDATED RISKS */
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
@@ -248,7 +252,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 				     
 	      totalglmcalls = totalglmcalls + gCOUNT[2];
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
-		Rprintf("The number of times glm was called on this validation set is %ld.\n",gCOUNT[2]);
+		Rprintf("The number of times glm was called on this validation set is %d.\n",gCOUNT[2]);
 
 	      if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
 		Rprintf("The average cross-validated risks by split (maxsize by nfolds) are: \n");
@@ -265,11 +269,11 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	  /* DELETE THE TREE FOR THIS FOLD */
 	  if(usetree==1)
 	    {
-	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is going to be deleted for training set %li",fold+1);
+	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is going to be deleted for training set %i",fold+1);
 	      delete_tree(TREE);
 	      Free(TREE);
 	      TREE = NULL;
-	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is deleted for training set %li",fold+1);
+	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is deleted for training set %i",fold+1);
 	    }
 	}/*end of for(fold =...)  loop*/
 
@@ -295,7 +299,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 		break;
 	      }
       if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)
-	Rprintf("\nMinimum average cross-validated risk of %lf is reached for a model of size %li with a maximum order of interaction of %li.\n",grandmin,bestsize,bestorderint);
+	Rprintf("\nMinimum average cross-validated risk of %lf is reached for a model of size %i with a maximum order of interaction of %i.\n",grandmin,bestsize,bestorderint);
       gCONST[7]=bestsize;
       gCONST[8]=bestorderint;
     } /* end if(CVDSA==1)*/
@@ -310,7 +314,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
     {
       /* GET FINAL BEST MODEL BY RUNNING DSA ON LEARNING SET */
       if(DSA_PACK_userMlevel>=DSA_PACK_Mbase && CVDSA==1)
-	Rprintf("\n****** Selecting the best model of size = %li and maximum order of interaction = %li on the learning set based on average residuals sum of squares ******\n",gCONST[7]+1,gCONST[8]);
+	Rprintf("\n****** Selecting the best model of size = %i and maximum order of interaction = %i on the learning set based on average residuals sum of squares ******\n",gCONST[7]+1,gCONST[8]);
       gCOUNT[2] = 0;   /* reset nglmcall */  
       for(i = 0; i < nlearn; i++)
 	{    
@@ -322,7 +326,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
       if(usetree==1)
 	{
 	  TREE = make_new_node(1, -1); /** the root node. **/ 
-	  if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is initialized for the learning set: name = %u, rss = %g \n", TREE->name, TREE->rss);
+	  if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is initialized for the learning set: name = %lu, rss = %g \n", TREE->name, TREE->rss);
 	}
   
       DSA_PACK_startAlgo(glmWT,PARA,RES,gCOUNT,gCONST,bestarss,Ylearn,Xlearn,
@@ -347,9 +351,9 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
       totalglmcalls = totalglmcalls + gCOUNT[2];
 
       if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
-	Rprintf("\nThe number of times glm was called on the learning set is %ld.\n",gCOUNT[2]);
+	Rprintf("\nThe number of times glm was called on the learning set is %d.\n",gCOUNT[2]);
       if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)
-	Rprintf("The total number of calls to glm is %ld.\n",totalglmcalls);
+	Rprintf("The total number of calls to glm is %d.\n",totalglmcalls);
     }
   
   if(DSA_PACK_userMlevel>=DSA_PACK_Mlow)Rprintf("\nLeaving the C subroutine.\n");

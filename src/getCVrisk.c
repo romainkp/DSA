@@ -40,8 +40,8 @@ void DSA_PACK_getaverageCVrisks(int *gCOUNT,int *gCONST,double *Xtrain,double *Y
   
   if(DSA_PACK_userMlevel>=DSA_PACK_Mhigh)
     {
-      Rprintf("orderint: %ld and maxorderint: %ld\n",orderint,maxorderint);
-      Rprintf("msize is: %li\n",(msize+1));
+      Rprintf("orderint: %d and maxorderint: %d\n",orderint,maxorderint);
+      Rprintf("msize is: %i\n",(msize+1));
     }
 
   /* GET CV RISK FOR EACH MODEL SIZE */
@@ -98,11 +98,11 @@ void DSA_PACK_getaverageCVrisks(int *gCOUNT,int *gCONST,double *Xtrain,double *Y
 	    Rprintf("\n");
 	  }
 	else DSA_PACK_printmatrix(PARA,kk+1,1);
-	Rprintf("\nNnonNA: %li\n",NnonNA);
+	Rprintf("\nNnonNA: %i\n",NnonNA);
       }
 
 
-    if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\nFor k=%ld, cvrisk=%lf \n",kk,temprss);
+    if(DSA_PACK_userMlevel>=DSA_PACK_Mmedium)Rprintf("\nFor k=%d, cvrisk=%lf \n",kk,temprss);
     CVrisksfold[kk] = temprss;
 
   }

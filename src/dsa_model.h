@@ -31,7 +31,7 @@
 #define DSA_MODEL_ERROR_UNKNOWN             10
 
 /** global constants specifying the debug level. **/
-int R_DSA_DEBUG_LEVEL;   
+extern int R_DSA_DEBUG_LEVEL;   
 
 #define R_DSA_DEBUG_TRACE   1
 #define R_DSA_DEBUG_LOW     2 
