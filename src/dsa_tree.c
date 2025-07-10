@@ -8,8 +8,8 @@ p_node_t* make_new_node(unsigned long name, double rss)
 {
     /** need to allocate room for a new p_node, and correspondingly
 	make some room for its children. **/
-    p_node_t* root = (p_node_t*) Calloc(1, p_node_t);
-    root->children = (p_node_t*) Calloc(BASE_SIZE, p_node_t);
+    p_node_t* root = (p_node_t*) calloc(1, sizeof(p_node_t));
+    root->children = (p_node_t*) calloc(BASE_SIZE, sizeof(p_node_t));
     root->current_children = 0;
     root->max_children = BASE_SIZE;
     root->name = name;
@@ -96,12 +96,12 @@ void add_node (unsigned long* probe, int len, double rss, struct p_node* tree) {
 		/** allocate more space. **/
 		if (current_node->current_children >= current_node->max_children) {
 		    /** memory management issue. **/
-		    p_node_t* new_children = Calloc(2*current_node->max_children, p_node_t);
+		    p_node_t* new_children = calloc(2*current_node->max_children, sizeof(p_node_t));
 		    for (k = 0; k < current_node->current_children; k++) {
 			new_children[k] = current_node->children[k];
 		    }
 		    current_node->max_children = 2*current_node->max_children;
-		    Free(current_node->children);
+		    free(current_node->children);
 		    current_node->children = new_children;
 		}
 		
@@ -109,7 +109,7 @@ void add_node (unsigned long* probe, int len, double rss, struct p_node* tree) {
 		/*		p_node_t* new_node = make_new_node(probe[j], ((j == (len - 1)) ? rss : -1)); */
 
 		p_node_t* new_node = (current_node->children + current_node->current_children++);
-		new_node->children = (p_node_t*) Calloc(BASE_SIZE, p_node_t);
+		new_node->children = (p_node_t*) calloc(BASE_SIZE, sizeof(p_node_t));
 		new_node->current_children = 0;
 		new_node->max_children = BASE_SIZE;
 		new_node->name = probe[j];
@@ -129,14 +129,14 @@ void delete_tree(p_node_t* tree) {
 	/** noop */
     }
     else if (tree->children == NULL || tree->current_children == 0) {
-	Free(tree->children);
+	free(tree->children);
 	tree->children = NULL;
     }
     else {
 	int i = 0; 
 	for (i = 0; i < tree->current_children; i++) 
 	    delete_tree(&tree->children[i]);
-	Free(tree->children);
+	free(tree->children);
         tree->children = NULL;
     }
 }

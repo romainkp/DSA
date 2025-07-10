@@ -271,7 +271,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	    {
 	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is going to be deleted for training set %i",fold+1);
 	      delete_tree(TREE);
-	      Free(TREE);
+	      free(TREE);
 	      TREE = NULL;
 	      if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is deleted for training set %i",fold+1);
 	    }
@@ -340,7 +340,7 @@ void DSA_PACK_Rentry(int *gCONST,double *Xlearn,double *Ylearn,double *CVrisks,d
 	{
 	  if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is going to be deleted for the learning set");
 	  delete_tree(TREE);
-	  Free(TREE);
+	  free(TREE);
 	  TREE = NULL;
 	  if(DSA_PACK_userMlevel >= DSA_PACK_Mbase)Rprintf("\nTree is deleted for the learning set");
 	}
